@@ -1,14 +1,12 @@
 import bcrypt
-from flask import Flask
+from flask import Flask, jsonify
+from loguru import logger
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 
 from config import configs
-
-
-
 
 
 db = SQLAlchemy()
@@ -26,7 +24,8 @@ def create_app(config_name):
 
     from .Auth import auth as auth_blueprint
     from .Character import character as char_blueprint
-    app.register_blueprint(auth_blueprint, url_prefix='/api/v1/auth')
-    app.register_blueprint(char_blueprint, ulr_prefix='/api/v1/characters')
+
+    app.register_blueprint(char_blueprint, url_prefix="/api/v1")
+    app.register_blueprint(auth_blueprint, url_prefix="/api/v1/auth")
 
     return app
