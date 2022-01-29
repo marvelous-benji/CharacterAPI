@@ -18,7 +18,7 @@ class Characters:
         '''
         Class initializer. I have chosen to use the
         string.format method rather than f-strings since 
-        it's compatible with version of Python lower than 3.7
+        it's compatible with version of Python lower than 3.6
         unlike the f-strings form.
         '''
 
