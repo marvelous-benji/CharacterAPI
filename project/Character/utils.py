@@ -42,3 +42,6 @@ class Characters:
         if response.status_code == 200:
             return response.json()
         return None
+
+
+character_instance = Characters()

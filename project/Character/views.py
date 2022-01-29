@@ -3,11 +3,9 @@ from flask_jwt_extended import current_user, jwt_required
 
 from project import db
 from . import character
-from .utils import Characters
+from .utils import character_instance
 from ..models import FavouriteTracker
 
-
-character_instance = Characters()
 
 
 @character.route("/characters", methods=["GET"])
