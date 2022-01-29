@@ -13,6 +13,7 @@ from marshmallow import Schema, fields, validate
 from project import db, bcrypt
 
 
+
 def hex_id():
     '''
     generates unique and random ids
@@ -56,7 +57,7 @@ class User(db.Model):
         '''
         A readable representation of the User class
         '''
-        
+
         return f"User('{self.id}','{self.email}')"
 
     @staticmethod

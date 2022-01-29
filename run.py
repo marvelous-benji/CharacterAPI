@@ -10,8 +10,7 @@ Relative and Absolute imports
 '''
 
 
-from flask import Flask, jsonify
-
+from flask import jsonify, redirect
 from flask_migrate import Migrate
 
 from loguru import logger
@@ -26,6 +25,8 @@ app = create_app(get_env("FLASK_CONFIG"))
 
 migrate = Migrate(app, db)
 
+db.create_all(app=app)
+
 
 @app.shell_context_processor
 def make_shell_processor():
@@ -36,6 +37,13 @@ def make_shell_processor():
 
     return dict(app=app, db=db, User=User, FavouriteTracker=FavouriteTracker)
 
+
+@app.route("/", methods=["GET"])
+def show_docs():
+    '''
+    Displays API documentation
+    '''
+    return redirect(get_env("DOCS_URL"))
 
 @app.errorhandler(500)
 def handle_unexpected_crash(e):
@@ -67,7 +75,7 @@ def handle_incorrect_method(e):
     '''
     Handles application wide 405 errors
     '''
-    
+
     logger.error(e)
     return (
         jsonify(

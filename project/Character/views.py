@@ -1,7 +1,13 @@
+'''
+This module contains all the endpoints
+neccessary for getting and setting favourites
+'''
+
+
 from flask import jsonify
 from flask_jwt_extended import current_user, jwt_required
 
-from project import db
+from project import db, cache
 from . import character
 from .utils import character_instance
 from ..models import FavouriteTracker
@@ -10,7 +16,11 @@ from ..models import FavouriteTracker
 
 @character.route("/characters", methods=["GET"])
 @jwt_required()
+@cache.cached(timeout=50)
 def return_all_characters():
+    '''
+    Returns all characters from third-party API
+    '''
 
     response = character_instance.get_all_characters()
     if response is None:
@@ -20,7 +30,12 @@ def return_all_characters():
 
 @character.route("/character/<string:id>/quotes", methods=["GET"])
 @jwt_required()
+@cache.memoize(50)
 def return_character_quotes(id):
+    '''
+    Return quotes belonging to a character
+    given its id
+    '''
 
     response = character_instance.get_character_quote(id)
     if response is None:
@@ -28,9 +43,13 @@ def return_character_quotes(id):
     return jsonify({"status": "success", "characters": response["docs"]}), 200
 
 
-@character.route("/characters/<string:id>/favourite", methods=["POST"])
+@character.route("/character/<string:id>/favourite", methods=["POST"])
 @jwt_required()
 def add_character_to_favourite(id):
+    '''
+    Adds a character user list of favourites
+    '''
+
     favourite = FavouriteTracker.query.filter_by(
         user_id=current_user.id, character_id=id
     ).first()
@@ -51,10 +70,15 @@ def add_character_to_favourite(id):
 
 
 @character.route(
-    "/characters/<string:id>/quotes/<string:quote_id>/favourite", methods=["POST"]
+    "/character/<string:id>/quotes/<string:quote_id>/favourite", methods=["POST"]
 )
 @jwt_required()
 def add_quote_to_favourite(id, quote_id):
+    '''
+    Adds a quote and the quote owner information
+    to user's list of favourite
+    '''
+
     favourite = FavouriteTracker.query.filter_by(
         user_id=current_user.id, quote_id=quote_id
     ).first()
@@ -83,7 +107,12 @@ def add_quote_to_favourite(id, quote_id):
 
 @character.route("/favourite", methods=["GET"])
 @jwt_required()
+@cache.cached(timeout=50)
 def get_user_favourites():
+    '''
+    Returns user's list of favourites
+    '''
+
     users_favourite = []
     items = FavouriteTracker.query.filter_by(user_id=current_user.id).all()
     for favourite in items:

@@ -1,7 +1,12 @@
+'''
+This module contains all the endpoints
+neccessary for user authentication
+'''
+
+
 from flask import request, jsonify
 from marshmallow import ValidationError
 from flask_jwt_extended import create_access_token
-from loguru import logger
 
 from project import db, jwt
 from . import auth
@@ -10,22 +15,40 @@ from ..models import User, UserSchema
 
 @jwt.user_identity_loader
 def user_identity_lookup(user):
+    '''
+    Automatically fetch authenticated
+    user id from the database
+    '''
+
     return user.id
 
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_payload):
+    '''
+    Automatically load authenticated user object
+    from database, making current_user available
+    for route wrapped with the @jwt_required() decorator
+    '''
+
     identity = jwt_payload["sub"]
     return User.query.filter_by(id=identity).one_or_none()
 
 
 @auth.route("/signup", methods=["POST"])
 def signup():
+    '''
+    User registration route
+    '''
 
     data = request.get_json()
     try:
+        '''
+        Taking the EAFP(Easier to Ask Forgiveness than Permission)
+        than the LBYL(Look Before You Leap) approach
+        '''
+
         serializer = UserSchema().load(data)
-        print(serializer)
     except ValidationError as err:
         return (
             jsonify(
@@ -48,8 +71,17 @@ def signup():
 
 @auth.route("/login", methods=["POST"])
 def signin():
+    '''
+    User signin route
+    '''
+    
     data = request.get_json()
     try:
+        '''
+        Taking the EAFP(Easier to Ask Forgiveness than Permission)
+        than the LBYL(Look Before You Leap) approach
+        '''
+
         serializer = UserSchema(exclude=("username",)).load(data)
     except ValidationError as err:
         return (
